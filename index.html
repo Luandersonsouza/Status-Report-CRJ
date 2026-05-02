@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Status Report Semanal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-soft: #eef3f8;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d9e1ec;
+      --brand: #0f766e;
+      --brand-strong: #115e59;
+      --done: #16a34a;
+      --progress: #d97706;
+      --waiting: #64748b;
+      --danger: #c2410c;
+      --shadow: 0 18px 55px rgba(31, 41, 55, 0.11);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(15, 118, 110, 0.08), rgba(245, 247, 251, 0) 340px),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      padding: 28px;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .report-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--brand-strong);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      max-width: 760px;
+      font-size: clamp(2rem, 4vw, 4rem);
+      letter-spacing: 0;
+      line-height: 0.98;
+      color: #101828;
+    }
+
+    .header-copy {
+      max-width: 720px;
+      margin-top: 16px;
+      color: #475467;
+      font-size: 1rem;
+    }
+
+    .week-card {
+      width: min(100%, 340px);
+      background: #102a43;
+      color: #f8fafc;
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .week-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: #b8d7d2;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .week-range {
+      margin-top: 10px;
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .week-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      color: #d6e6ea;
+      font-size: 0.85rem;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .focus-panel,
+    .distribution-panel,
+    .stat-card,
+    .project-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(217, 225, 236, 0.9);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 30px rgba(31, 41, 55, 0.07);
+    }
+
+    .focus-panel {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 16px;
+      align-items: center;
+      padding: 18px;
+    }
+
+    .focus-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #fff7ed;
+      color: var(--danger);
+      font-size: 1.15rem;
+    }
+
+    .focus-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--danger);
+    }
+
+    .focus-text {
+      margin-top: 3px;
+      color: #344054;
+      font-weight: 600;
+    }
+
+    .distribution-panel {
+      padding: 18px;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #344054;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .distribution-bar {
+      display: flex;
+      height: 12px;
+      overflow: hidden;
+      margin-top: 16px;
+      border-radius: 999px;
+      background: #e5e7eb;
+    }
+
+    .distribution-bar span {
+      min-width: 0;
+      transition: width 0.25s ease;
+    }
+
+    .segment-done {
+      background: var(--done);
+    }
+
+    .segment-progress {
+      background: var(--progress);
+    }
+
+    .segment-waiting {
+      background: var(--waiting);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 13px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      padding: 18px;
+    }
+
+    .stat-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .stat-number {
+      margin-top: 12px;
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+      color: #101828;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin: 28px 0 14px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #101828;
+    }
+
+    .filters {
+      display: inline-flex;
+      gap: 6px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #ffffff;
+    }
+
+    .filter-btn {
+      min-height: 34px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #475467;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 0 12px;
+      transition: 0.18s ease;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: #102a43;
+      color: #ffffff;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .project-card {
+      display: flex;
+      min-height: 260px;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(15, 118, 110, 0.35);
+      box-shadow: var(--shadow);
+    }
+
+    .card-top {
+      padding: 18px 18px 0;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .project-icon {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius);
+      color: #ffffff;
+      background: #102a43;
+    }
+
+    .project-title {
+      min-width: 0;
+      margin-top: 12px;
+      color: #101828;
+      font-size: 1.02rem;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      padding: 6px 9px;
+      text-transform: uppercase;
+    }
+
+    .badge-done {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-progress {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-waiting {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+      padding: 0 18px 18px;
+      list-style: none;
+    }
+
+    .task-list li,
+    .empty-tasks {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      color: #475467;
+      font-size: 0.9rem;
+    }
+
+    .task-list i,
+    .empty-tasks i {
+      margin-top: 4px;
+      color: var(--brand);
+      font-size: 0.72rem;
+    }
+
+    .empty-tasks {
+      margin: 18px;
+      padding: 14px;
+      border: 1px dashed #cbd5e1;
+      border-radius: var(--radius);
+      background: #f8fafc;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: auto;
+      padding: 13px 18px;
+      border-top: 1px solid var(--line);
+      background: #fbfcfe;
+      color: #667085;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .footer-note {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin: 30px 0 6px;
+      color: #667085;
+      font-size: 0.78rem;
+    }
+
+    .footer-note span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .is-hidden {
+      display: none;
+    }
+
+    .delivery-intro {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(16, 42, 67, 0.96), rgba(7, 21, 36, 0.98)),
+        #102a43;
+      color: #ffffff;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+
+    .delivery-intro.is-done {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .delivery-scene {
+      width: min(820px, 90vw);
+      min-height: 300px;
+      position: relative;
+      display: grid;
+      align-content: center;
+      gap: 34px;
+    }
+
+    .delivery-copy {
+      max-width: 560px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .delivery-copy span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #99f6e4;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .delivery-copy strong {
+      display: block;
+      margin-top: 10px;
+      font-size: clamp(1.8rem, 5vw, 3.7rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .delivery-copy p {
+      margin-top: 12px;
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+
+    .road {
+      position: relative;
+      height: 108px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background:
+        linear-gradient(90deg, transparent 0 12%, rgba(255, 255, 255, 0.18) 12% 18%, transparent 18% 30%) 0 73px / 180px 4px repeat-x,
+        linear-gradient(180deg, #213547, #172536);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 24px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    .truck {
+      position: absolute;
+      left: -180px;
+      bottom: 24px;
+      width: 164px;
+      height: 62px;
+      animation: driveTruck 5.8s cubic-bezier(0.22, 0.77, 0.35, 1) forwards;
+    }
+
+    .truck-body {
+      position: absolute;
+      left: 0;
+      bottom: 15px;
+      width: 104px;
+      height: 45px;
+      border-radius: 7px 5px 4px 4px;
+      background: #f8fafc;
+      box-shadow: inset 0 -8px 0 #dbeafe;
+    }
+
+    .truck-body::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      top: 12px;
+      width: 54px;
+      height: 9px;
+      border-radius: 999px;
+      background: #0f766e;
+      box-shadow: 0 15px 0 #99f6e4;
+    }
+
+    .truck-cab {
+      position: absolute;
+      right: 12px;
+      bottom: 15px;
+      width: 55px;
+      height: 39px;
+      border-radius: 7px 12px 4px 4px;
+      background: #14b8a6;
+    }
+
+    .truck-cab::before {
+      content: "";
+      position: absolute;
+      right: 9px;
+      top: 8px;
+      width: 21px;
+      height: 13px;
+      border-radius: 4px 8px 3px 3px;
+      background: #cffafe;
+    }
+
+    .truck-cab::after {
+      content: "";
+      position: absolute;
+      right: 2px;
+      bottom: 7px;
+      width: 8px;
+      height: 7px;
+      border-radius: 2px;
+      background: #fde68a;
+    }
+
+    .wheel {
+      position: absolute;
+      bottom: 4px;
+      width: 24px;
+      height: 24px;
+      border: 5px solid #0f172a;
+      border-radius: 50%;
+      background: #94a3b8;
+      animation: spinWheel 0.42s linear infinite;
+    }
+
+    .wheel::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: 50%;
+      background: #e2e8f0;
+    }
+
+    .wheel-one {
+      left: 20px;
+    }
+
+    .wheel-two {
+      right: 28px;
+    }
+
+    .parcel {
+      position: absolute;
+      top: 21px;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: #f59e0b;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+      opacity: 0;
+      animation: dropParcel 1.6s ease-in-out forwards;
+    }
+
+    .parcel:nth-child(1) {
+      left: 18%;
+      animation-delay: 1.1s;
+    }
+
+    .parcel:nth-child(2) {
+      left: 50%;
+      animation-delay: 2s;
+      background: #22c55e;
+    }
+
+    .parcel:nth-child(3) {
+      left: 76%;
+      animation-delay: 2.8s;
+      background: #38bdf8;
+    }
+
+    .skip-intro {
+      justify-self: center;
+      min-height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 0 14px;
+      transition: background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .skip-intro:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.34);
+    }
+
+    body.intro-lock {
+      overflow: hidden;
+    }
+
+    body:not(.intro-lock) .page {
+      animation: dashboardIn 0.55s ease both;
+    }
+
+    @keyframes driveTruck {
+      0% {
+        transform: translateX(0);
+      }
+      72% {
+        transform: translateX(calc(min(820px, 90vw) - 72px));
+      }
+      100% {
+        transform: translateX(calc(min(820px, 90vw) + 210px));
+      }
+    }
+
+    @keyframes spinWheel {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes dropParcel {
+      0% {
+        transform: translateY(-18px) rotate(-12deg);
+        opacity: 0;
+      }
+      35% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(52px) rotate(8deg);
+        opacity: 0.9;
+      }
+    }
+
+    @keyframes dashboardIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .truck,
+      .wheel,
+      .parcel,
+      body:not(.intro-lock) .page {
+        animation: none;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .report-header,
+      .summary-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .week-card {
+        width: 100%;
+      }
+
+      .projects-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 18px;
+      }
+
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      .stats-row,
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar,
+      .filters {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .filter-btn {
+        width: 100%;
+      }
+
+      .focus-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="intro-lock">
+  <div class="delivery-intro" id="deliveryIntro" role="status" aria-live="polite">
+    <div class="delivery-scene">
+      <div class="delivery-copy">
+        <span><i class="fas fa-truck"></i> intro semanal</span>
+        <strong>caminhão das entregas</strong>
+        <p>Organizando entregas concluídas, atividades em andamento e bloqueios da semana.</p>
+      </div>
+      <div class="road" aria-hidden="true">
+        <span class="parcel"></span>
+        <span class="parcel"></span>
+        <span class="parcel"></span>
+        <div class="truck">
+          <span class="truck-body"></span>
+          <span class="truck-cab"></span>
+          <span class="wheel wheel-one"></span>
+          <span class="wheel wheel-two"></span>
+        </div>
+      </div>
+      <button class="skip-intro" id="skipIntro" type="button">Pular intro</button>
+    </div>
+  </div>
+  <main class="page">
+    <header class="report-header">
+      <div>
+        <div class="eyebrow"><i class="fas fa-chart-line"></i> Status report semanal</div>
+        <h1>Weekly Pulse de entregas e prioridades</h1>
+        <p class="header-copy">Resumo executivo para daily review, com visão rápida do que foi concluído, o que segue ativo e qual dependência precisa de atenção.</p>
+      </div>
+
+      <aside class="week-card" aria-label="Semana atual">
+        <div class="week-label">
+          <span>Semana atual</span>
+          <i class="fas fa-calendar-week"></i>
+        </div>
+        <div class="week-range" id="dynamicWeek">Carregando...</div>
+        <div class="week-meta">
+          <span id="syncDate">Atualizando...</span>
+          <span>GitHub Pages ready</span>
+        </div>
+      </aside>
+    </header>
+
+    <section class="summary-strip" aria-label="Resumo da semana">
+      <div class="focus-panel">
+        <div class="focus-icon"><i class="fas fa-flag"></i></div>
+        <div>
+          <div class="focus-title">Foco da daily</div>
+          <p class="focus-text" id="focusText">Atualizando bloqueios e entregas ativas...</p>
+        </div>
+      </div>
+
+      <div class="distribution-panel">
+        <div class="panel-title">
+          <span>Distribuição dos projetos</span>
+          <span id="completionRate">0%</span>
+        </div>
+        <div class="distribution-bar" aria-hidden="true">
+          <span class="segment-done" id="doneSegment"></span>
+          <span class="segment-progress" id="progressSegment"></span>
+          <span class="segment-waiting" id="waitingSegment"></span>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot segment-done"></span>Concluídos</span>
+          <span class="legend-item"><span class="legend-dot segment-progress"></span>Em andamento</span>
+          <span class="legend-item"><span class="legend-dot segment-waiting"></span>Aguardando</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-row" id="statsPanel" aria-label="Indicadores">
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-folder-open"></i> Total projetos</div>
+        <div class="stat-number" id="totalProjects">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-check-circle" style="color: var(--done);"></i> Concluídos</div>
+        <div class="stat-number" id="doneCount">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-sync-alt" style="color: var(--progress);"></i> Em andamento</div>
+        <div class="stat-number" id="progressCount">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-hourglass-half" style="color: var(--waiting);"></i> Aguardando</div>
+        <div class="stat-number" id="waitingCount">-</div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div class="section-title"><i class="fas fa-list-check"></i> Projetos da semana</div>
+      <div class="filters" aria-label="Filtrar projetos por status">
+        <button class="filter-btn active" type="button" data-filter="all">Todos</button>
+        <button class="filter-btn" type="button" data-filter="progress">Em andamento</button>
+        <button class="filter-btn" type="button" data-filter="done">Concluídos</button>
+        <button class="filter-btn" type="button" data-filter="waiting">Aguardando</button>
+      </div>
+    </div>
+
+    <section class="projects-grid" id="projectsGrid">
+      <article class="project-card" data-status="progress">
+        <div class="card-top">
+          <div class="card-header">
+            <div class="project-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <span class="status-badge badge-progress"><i class="fas fa-spinner fa-pulse"></i> Em andamento</span>
+          </div>
+          <h2 class="project-title">Prorrogação de títulos de revenda FOB (e DDF)</h2>
+        </div>
+        <ul class="task-list">
+          <li><i class="fas fa-circle"></i><span>Análise de aderência da solicitação</span></li>
+          <li><i class="fas fa-circle"></i><span>Levantamento do processo atual (AS IS)</span></li>
+          <li><i class="fas fa-circle"></i><span>Mapeamento de falhas e inconsistências</span></li>
+        </ul>
+        <div class="card-footer"><span>Prioridade ativa</span><span>Processo</span></div>
+      </article>
+
+      <article class="project-card" data-status="progress">
+        <div class="card-top">
+          <div class="card-header">
+            <div class="project-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <span class="status-badge badge-progress"><i class="fas fa-play"></i> Em andamento</span>
+          </div>
+          <h2 class="project-title">Autorização para pagamento de título (adiantamento)</h2>
+        </div>
+        <div class="empty-tasks"><i class="fas fa-ellipsis-h"></i><span>Em análise operacional · próximos passos em breve</span></div>
+        <div class="card-footer"><span>Em análise</span><span>Operação</span></div>
+      </article>
+
+      <article class="project-card" data-status="done">
+        <div class="card-top">
+          <div class="card-header">
+            <div class="project-icon"><i class="fas fa-chart-pie"></i></div>
+            <span class="status-badge badge-done"><i class="fas fa-check"></i> Concluído</span>
+          </div>
+          <h2 class="project-title">Painel Analítico - Produto importado</h2>
+        </div>
+        <ul class="task-list">
+          <li><i class="fas fa-check-circle"></i><span>MCO padrão escritório</span></li>
+          <li><i class="fas fa-check-circle"></i><span>MCO liberado para CQ</span></li>
+        </ul>
+        <div class="card-footer"><span>Entregue</span><span>MCO</span></div>
+      </article>
+
+      <article class="project-card" data-status="done">
+        <div class="card-top">
+          <div class="card-header">
+            <div class="project-icon"><i class="fas fa-video"></i></div>
+            <span class="status-badge badge-done"><i class="fas fa-check-double"></i> Concluído</span>
+          </div>
+          <h2 class="project-title">Ajuste Vídeo Separação</h2>
+        </div>
+        <ul class="task-list">
+          <li><i class="fas fa-check-circle"></i><span>Correção dos pontos informados</span></li>
+          <li><i class="fas fa-check-circle"></i><span>Vídeo reenviado para CQ</span></li>
+        </ul>
+        <div class="card-footer"><span>Entregue</span><span>Conteúdo</span></div>
+      </article>
+
+      <article class="project-card" data-status="progress">
+        <div class="card-top">
+          <div class="card-header">
+            <div class="project-icon"><i class="fas fa-clipboard-list"></i></div>
+            <span class="status-badge badge-progress"><i class="fas fa-chart-line"></i> Em andamento</span>
+          </div>
+          <h2 class="project-title">Política de avaria - Recebimento (CD e Loja)</h2>
+        </div>
+        <ul class="task-list">
+          <li><i class="fas fa-circle"></i><span>Análise de cobertura MCO vs Política</span></li>
+          <li><i class="fas fa-circle"></i><span>Identificação de lacunas</span></li>
+        </ul>
+        <div class="card-footer"><span>Mapeamento</span><span>Política</span></div>
+      </article>
+
+      <article class="project-card" data-status="progress">
+        <div class="card-top">
+          <div class="card-header">
+            <div class="project-icon"><i class="fas fa-ship"></i></div>
+            <span class="status-badge badge-progress"><i class="fas fa-code-branch"></i> Em andamento</span>
+          </div>
+          <h2 class="project-title">Fluxo FOB Sanni</h2>
+        </div>
+        <ul class="task-list">
+          <li><i class="fas fa-circle"></i><span>Confecção do MCO</span></li>
+          <li><i class="fas fa-circle"></i><span>MCO disponibilizado para CQ</span></li>
+          <li><i class="fas fa-circle"></i><span>Ajustes no MCO</span></li>
+        </ul>
+        <div class="card-footer"><span>Ajustes</span><span>MCO</span></div>
+      </article>
+
+      <article class="project-card" data-status="waiting">
+        <div class="card-top">
+          <div class="card-header">
+            <div class="project-icon"><i class="fas fa-building"></i></div>
+            <span class="status-badge badge-waiting"><i class="fas fa-hourglass-half"></i> Aguardando</span>
+          </div>
+          <h2 class="project-title">Regra regime atacadista</h2>
+        </div>
+        <ul class="task-list">
+          <li><i class="fas fa-clock"></i><span>Aguardando ETP para início do MCO</span></li>
+        </ul>
+        <div class="card-footer"><span>Dependência externa</span><span>ETP</span></div>
+      </article>
+
+      <article class="project-card" data-status="progress">
+        <div class="card-top">
+          <div class="card-header">
+            <div class="project-icon"><i class="fas fa-truck"></i></div>
+            <span class="status-badge badge-progress"><i class="fas fa-exchange-alt"></i> Em andamento</span>
+          </div>
+          <h2 class="project-title">Monitor de entrega</h2>
+        </div>
+        <ul class="task-list">
+          <li><i class="fas fa-circle"></i><span>Contato com solicitante para entendimento</span></li>
+        </ul>
+        <div class="card-footer"><span>Entendimento</span><span>Solicitante</span></div>
+      </article>
+
+      <article class="project-card" data-status="done">
+        <div class="card-top">
+          <div class="card-header">
+            <div class="project-icon"><i class="fas fa-mobile-alt"></i></div>
+            <span class="status-badge badge-done"><i class="fas fa-rocket"></i> Concluído</span>
+          </div>
+          <h2 class="project-title">App separação</h2>
+        </div>
+        <ul class="task-list">
+          <li><i class="fas fa-check-circle"></i><span>Demanda já em produção</span></li>
+          <li><i class="fas fa-check-circle"></i><span>Chamado finalizado</span></li>
+        </ul>
+        <div class="card-footer"><span>Produção</span><span>Chamado finalizado</span></div>
+      </article>
+    </section>
+
+    <footer class="footer-note">
+      <span><i class="far fa-clock"></i> atualização dinâmica para daily review</span>
+      <span><i class="fas fa-users"></i> foco: blockers & entregas críticas</span>
+      <span><i class="fas fa-chart-simple"></i> status baseado nas entregas da semana</span>
+    </footer>
+  </main>
+
+  <script>
+    (function() {
+      const statusLabels = {
+        all: "Todos",
+        done: "Concluídos",
+        progress: "Em andamento",
+        waiting: "Aguardando"
+      };
+
+      function getCurrentWeekRange() {
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const monday = new Date(today);
+        monday.setDate(today.getDate() + diffToMonday);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+
+        const formatDate = (date) => date.toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "2-digit"
+        });
+
+        return `${formatDate(monday)} - ${formatDate(sunday)} · ${monday.getFullYear()}`;
+      }
+
+      function getStats() {
+        const cards = Array.from(document.querySelectorAll(".project-card"));
+        return cards.reduce((stats, card) => {
+          const status = card.dataset.status;
+          stats.total += 1;
+          stats[status] += 1;
+          return stats;
+        }, { total: 0, done: 0, progress: 0, waiting: 0 });
+      }
+
+      function setText(id, value) {
+        const element = document.getElementById(id);
+        if (element) element.innerText = value;
+      }
+
+      function updateDashboard() {
+        const stats = getStats();
+        const donePercent = stats.total ? Math.round((stats.done / stats.total) * 100) : 0;
+        const progressPercent = stats.total ? Math.round((stats.progress / stats.total) * 100) : 0;
+        const waitingPercent = Math.max(0, 100 - donePercent - progressPercent);
+
+        setText("totalProjects", stats.total);
+        setText("doneCount", stats.done);
+        setText("progressCount", stats.progress);
+        setText("waitingCount", stats.waiting);
+        setText("completionRate", `${donePercent}% concluído`);
+        setText("focusText", `${stats.waiting} bloqueio(s) esperando definição · ${stats.progress} entrega(s) em andamento ativo · ${stats.done} concluída(s) na semana.`);
+
+        document.getElementById("doneSegment").style.width = `${donePercent}%`;
+        document.getElementById("progressSegment").style.width = `${progressPercent}%`;
+        document.getElementById("waitingSegment").style.width = `${waitingPercent}%`;
+      }
+
+      function setDates() {
+        const now = new Date();
+        setText("dynamicWeek", getCurrentWeekRange());
+        setText("syncDate", `Sync ${now.toLocaleDateString("pt-BR")} ${now.toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit"
+        })}`);
+      }
+
+      function applyFilter(filter) {
+        document.querySelectorAll(".project-card").forEach((card) => {
+          const shouldShow = filter === "all" || card.dataset.status === filter;
+          card.classList.toggle("is-hidden", !shouldShow);
+        });
+
+        document.querySelectorAll(".filter-btn").forEach((button) => {
+          const isActive = button.dataset.filter === filter;
+          button.classList.toggle("active", isActive);
+          button.setAttribute("aria-pressed", String(isActive));
+        });
+
+        document.querySelector(".section-title").innerHTML = `<i class="fas fa-list-check"></i> Projetos da semana · ${statusLabels[filter]}`;
+      }
+
+      function setupIntro() {
+        const intro = document.getElementById("deliveryIntro");
+        const skipButton = document.getElementById("skipIntro");
+        const hasSeenIntro = localStorage.getItem("weeklyStatusIntroSeen") === "true";
+
+        function closeIntro() {
+          intro.classList.add("is-done");
+          document.body.classList.remove("intro-lock");
+          localStorage.setItem("weeklyStatusIntroSeen", "true");
+        }
+
+        if (hasSeenIntro || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          closeIntro();
+          return;
+        }
+
+        skipButton.addEventListener("click", closeIntro);
+        window.setTimeout(closeIntro, 6400);
+      }
+
+      document.querySelectorAll(".filter-btn").forEach((button) => {
+        button.addEventListener("click", () => applyFilter(button.dataset.filter));
+      });
+
+      setupIntro();
+      setDates();
+      updateDashboard();
+      applyFilter("all");
+    })();
+  </script>
+</body>
+</html>
