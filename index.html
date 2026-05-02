@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
       --bg: #f5f7fb;
@@ -214,6 +215,10 @@
       background: var(--waiting);
     }
 
+    .segment-canceled {
+      background: #dc2626;
+    }
+
     .legend {
       display: flex;
       flex-wrap: wrap;
@@ -310,6 +315,36 @@
       color: #ffffff;
     }
 
+    .period-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .select-field {
+      min-height: 42px;
+      min-width: 180px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #ffffff;
+      color: #344054;
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 800;
+      padding: 0 12px;
+    }
+
+    .data-source-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #667085;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -389,6 +424,16 @@
       color: #334155;
     }
 
+    .badge-todo {
+      background: #e0f2fe;
+      color: #075985;
+    }
+
+    .badge-canceled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
     .task-list {
       display: grid;
       gap: 10px;
@@ -432,6 +477,62 @@
       background: #fbfcfe;
       color: #667085;
       font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .date-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 0 18px 18px;
+    }
+
+    .date-pill {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f8fafc;
+      padding: 9px 10px;
+    }
+
+    .date-pill span {
+      display: block;
+      color: #667085;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .date-pill strong {
+      display: block;
+      margin-top: 3px;
+      color: #1d2939;
+      font-size: 0.85rem;
+    }
+
+    .delay-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: #ecfdf3;
+      color: #166534;
+    }
+
+    .delay-chip.is-late {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      border: 1px dashed #cbd5e1;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.8);
+      color: #667085;
+      padding: 28px;
+      text-align: center;
       font-weight: 700;
     }
 
@@ -775,9 +876,14 @@
       }
 
       .toolbar,
+      .period-controls,
       .filters {
         align-items: stretch;
         flex-direction: column;
+      }
+
+      .select-field {
+        width: 100%;
       }
 
       .filter-btn {
@@ -854,11 +960,13 @@
           <span class="segment-done" id="doneSegment"></span>
           <span class="segment-progress" id="progressSegment"></span>
           <span class="segment-waiting" id="waitingSegment"></span>
+          <span class="segment-canceled" id="canceledSegment"></span>
         </div>
         <div class="legend">
-          <span class="legend-item"><span class="legend-dot segment-done"></span>Concluídos</span>
-          <span class="legend-item"><span class="legend-dot segment-progress"></span>Em andamento</span>
-          <span class="legend-item"><span class="legend-dot segment-waiting"></span>Aguardando</span>
+      <span class="legend-item"><span class="legend-dot segment-done"></span>Finalizadas</span>
+      <span class="legend-item"><span class="legend-dot segment-progress"></span>Em andamento</span>
+      <span class="legend-item"><span class="legend-dot segment-waiting"></span>A fazer</span>
+      <span class="legend-item"><span class="legend-dot segment-canceled"></span>Canceladas</span>
         </div>
       </div>
     </section>
@@ -869,7 +977,7 @@
         <div class="stat-number" id="totalProjects">-</div>
       </div>
       <div class="stat-card">
-        <div class="stat-title"><i class="fas fa-check-circle" style="color: var(--done);"></i> Concluídos</div>
+        <div class="stat-title"><i class="fas fa-check-circle" style="color: var(--done);"></i> Finalizadas</div>
         <div class="stat-number" id="doneCount">-</div>
       </div>
       <div class="stat-card">
@@ -877,22 +985,32 @@
         <div class="stat-number" id="progressCount">-</div>
       </div>
       <div class="stat-card">
-        <div class="stat-title"><i class="fas fa-hourglass-half" style="color: var(--waiting);"></i> Aguardando</div>
+        <div class="stat-title"><i class="fas fa-hourglass-half" style="color: var(--waiting);"></i> A fazer</div>
         <div class="stat-number" id="waitingCount">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title"><i class="fas fa-ban" style="color: #dc2626;"></i> Canceladas</div>
+        <div class="stat-number" id="canceledCount">-</div>
       </div>
     </section>
 
     <div class="toolbar">
       <div class="section-title"><i class="fas fa-list-check"></i> Projetos da semana</div>
-      <div class="filters" aria-label="Filtrar projetos por status">
-        <button class="filter-btn active" type="button" data-filter="all">Todos</button>
-        <button class="filter-btn" type="button" data-filter="progress">Em andamento</button>
-        <button class="filter-btn" type="button" data-filter="done">Concluídos</button>
-        <button class="filter-btn" type="button" data-filter="waiting">Aguardando</button>
+      <div class="period-controls">
+        <span class="data-source-note"><i class="fas fa-file-excel"></i> dados-status.xlsx</span>
+        <select class="select-field" id="monthSelect" aria-label="Selecionar mês"></select>
+        <select class="select-field" id="weekSelect" aria-label="Selecionar semana"></select>
+        <div class="filters" aria-label="Filtrar projetos por status">
+          <button class="filter-btn active" type="button" data-filter="all">Todos</button>
+          <button class="filter-btn" type="button" data-filter="todo">A fazer</button>
+          <button class="filter-btn" type="button" data-filter="progress">Em andamento</button>
+          <button class="filter-btn" type="button" data-filter="done">Finalizadas</button>
+          <button class="filter-btn" type="button" data-filter="canceled">Canceladas</button>
+        </div>
       </div>
     </div>
 
-    <section class="projects-grid" id="projectsGrid">
+    <section class="projects-grid" id="projectsGrid" aria-live="polite">
       <article class="project-card" data-status="progress">
         <div class="card-top">
           <div class="card-header">
@@ -1035,38 +1153,116 @@
 
   <script>
     (function() {
-      const statusLabels = {
-        all: "Todos",
-        done: "Concluídos",
-        progress: "Em andamento",
-        waiting: "Aguardando"
+      const DATA_FILE = "dados-status.xlsx";
+      const state = {
+        allActivities: [],
+        filteredActivities: [],
+        selectedMonth: "",
+        selectedWeek: "",
+        selectedStatus: "all"
       };
 
-      function getCurrentWeekRange() {
-        const today = new Date();
-        const dayOfWeek = today.getDay();
-        const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-        const monday = new Date(today);
-        monday.setDate(today.getDate() + diffToMonday);
-        const sunday = new Date(monday);
-        sunday.setDate(monday.getDate() + 6);
+      const statusConfig = {
+        all: { label: "Todos", icon: "fas fa-list-check", badge: "" },
+        todo: { label: "A fazer", icon: "fas fa-clipboard", badge: "badge-todo" },
+        progress: { label: "Em andamento", icon: "fas fa-spinner fa-pulse", badge: "badge-progress" },
+        done: { label: "Finalizada", icon: "fas fa-check", badge: "badge-done" },
+        canceled: { label: "Cancelada", icon: "fas fa-ban", badge: "badge-canceled" }
+      };
 
-        const formatDate = (date) => date.toLocaleDateString("pt-BR", {
+      const fallbackActivities = [
+        ["Prorrogação de títulos de revenda FOB (e DDF)", "2026-04-27", "2026-05-01", "2026-04-27", "", "Em andamento", 0, "Análise de aderência, AS IS e mapeamento de falhas."],
+        ["Autorização para pagamento de título (adiantamento)", "2026-04-27", "2026-05-01", "2026-04-28", "", "Em andamento", 0, "Em análise operacional."],
+        ["Painel Analítico - Produto importado", "2026-04-27", "2026-04-30", "2026-04-27", "2026-04-30", "Finalizada", 0, "MCO padrão escritório e liberado para CQ."],
+        ["Ajuste Vídeo Separação", "2026-04-28", "2026-04-30", "2026-04-28", "2026-04-30", "Finalizada", 0, "Correções realizadas e vídeo reenviado para CQ."],
+        ["Política de avaria - Recebimento (CD e Loja)", "2026-04-27", "2026-05-01", "2026-04-29", "", "Em andamento", 0, "Análise de cobertura MCO vs Política e identificação de lacunas."],
+        ["Fluxo FOB Sanni", "2026-04-27", "2026-05-01", "2026-04-27", "", "Em andamento", 0, "Confecção, envio para CQ e ajustes no MCO."],
+        ["Regra regime atacadista", "2026-04-27", "2026-05-01", "", "", "A fazer", 2, "Aguardando ETP para início do MCO."],
+        ["Monitor de entrega", "2026-04-29", "2026-05-02", "2026-04-29", "", "Em andamento", 0, "Contato com solicitante para entendimento."],
+        ["App separação", "2026-04-27", "2026-04-29", "2026-04-27", "2026-04-29", "Finalizada", 0, "Demanda em produção e chamado finalizado."]
+      ];
+
+      function getCurrentWeekRange() {
+        const currentWeek = state.selectedWeek ? parseWeekValue(state.selectedWeek) : getBusinessWeek(new Date());
+        if (!currentWeek) return "Semana não selecionada";
+        return `${formatShortDate(currentWeek.start)} - ${formatShortDate(currentWeek.end)} · ${currentWeek.start.getFullYear()}`;
+      }
+
+      function getBusinessWeek(date) {
+        const base = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const dayOfWeek = base.getDay();
+        const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const monday = new Date(base);
+        monday.setDate(base.getDate() + diffToMonday);
+        const friday = new Date(monday);
+        friday.setDate(monday.getDate() + 4);
+        return { start: monday, end: friday };
+      }
+
+      function formatShortDate(date) {
+        return date.toLocaleDateString("pt-BR", {
           day: "2-digit",
           month: "2-digit"
         });
-
-        return `${formatDate(monday)} - ${formatDate(sunday)} · ${monday.getFullYear()}`;
       }
 
-      function getStats() {
-        const cards = Array.from(document.querySelectorAll(".project-card"));
-        return cards.reduce((stats, card) => {
-          const status = card.dataset.status;
+      function formatDate(date) {
+        if (!date) return "Sem data";
+        return date.toLocaleDateString("pt-BR");
+      }
+
+      function toDate(value) {
+        if (!value) return null;
+        if (value instanceof Date && !Number.isNaN(value.getTime())) {
+          return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+        }
+        if (typeof value === "number") {
+          const parsed = XLSX.SSF.parse_date_code(value);
+          if (!parsed) return null;
+          return new Date(parsed.y, parsed.m - 1, parsed.d);
+        }
+        const normalized = String(value).trim();
+        if (!normalized) return null;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+          const [year, month, day] = normalized.split("-").map(Number);
+          return new Date(year, month - 1, day);
+        }
+        const brMatch = normalized.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (brMatch) {
+          return new Date(Number(brMatch[3]), Number(brMatch[2]) - 1, Number(brMatch[1]));
+        }
+        const parsed = new Date(normalized);
+        return Number.isNaN(parsed.getTime()) ? null : new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+      }
+
+      function toStatus(value) {
+        const normalized = String(value || "").trim().toLowerCase();
+        if (normalized.includes("cancel")) return "canceled";
+        if (normalized.includes("final") || normalized.includes("conclu")) return "done";
+        if (normalized.includes("andamento") || normalized.includes("progres")) return "progress";
+        return "todo";
+      }
+
+      function normalizeRow(row) {
+        return {
+          activity: row.Atividade || row.Atividades || row.Demanda || row.Projeto || "",
+          plannedStart: toDate(row["Início Planejado"] || row["Inicio Planejado"] || row["Data Planejada Início"] || row["Planejado Início"]),
+          plannedEnd: toDate(row["Fim Planejado"] || row["Data Planejada Fim"] || row["Planejado Fim"]),
+          realStart: toDate(row["Início Real"] || row["Inicio Real"] || row["Data Real Início"] || row["Real Início"]),
+          realEnd: toDate(row["Fim Real"] || row["Data Real Fim"] || row["Real Fim"]),
+          status: toStatus(row.Status || row["Status da demanda"] || row["Status da Demanda"]),
+          delayDays: Number(row["Dias de Atraso"] || row["Dias Atraso"] || row.Atraso || 0) || 0,
+          notes: row["Observações"] || row.Observacoes || row["Observação"] || row.Observacao || ""
+        };
+      }
+
+      function getStats(activities = state.filteredActivities) {
+        return activities.reduce((stats, activity) => {
           stats.total += 1;
-          stats[status] += 1;
+          stats[activity.status] += 1;
+          if (activity.delayDays > 0) stats.late += 1;
           return stats;
-        }, { total: 0, done: 0, progress: 0, waiting: 0 });
+        }, { total: 0, done: 0, progress: 0, todo: 0, canceled: 0, late: 0 });
       }
 
       function setText(id, value) {
@@ -1076,20 +1272,24 @@
 
       function updateDashboard() {
         const stats = getStats();
-        const donePercent = stats.total ? Math.round((stats.done / stats.total) * 100) : 0;
-        const progressPercent = stats.total ? Math.round((stats.progress / stats.total) * 100) : 0;
-        const waitingPercent = Math.max(0, 100 - donePercent - progressPercent);
+        const percent = (value) => stats.total ? Math.round((value / stats.total) * 100) : 0;
+        const donePercent = percent(stats.done);
+        const progressPercent = percent(stats.progress);
+        const todoPercent = percent(stats.todo);
+        const canceledPercent = Math.max(0, 100 - donePercent - progressPercent - todoPercent);
 
         setText("totalProjects", stats.total);
         setText("doneCount", stats.done);
         setText("progressCount", stats.progress);
-        setText("waitingCount", stats.waiting);
-        setText("completionRate", `${donePercent}% concluído`);
-        setText("focusText", `${stats.waiting} bloqueio(s) esperando definição · ${stats.progress} entrega(s) em andamento ativo · ${stats.done} concluída(s) na semana.`);
+        setText("waitingCount", stats.todo);
+        setText("canceledCount", stats.canceled);
+        setText("completionRate", `${donePercent}% finalizado`);
+        setText("focusText", `${stats.todo} a fazer · ${stats.progress} em andamento · ${stats.late} com atraso informado · ${stats.done} finalizada(s) na semana.`);
 
         document.getElementById("doneSegment").style.width = `${donePercent}%`;
         document.getElementById("progressSegment").style.width = `${progressPercent}%`;
-        document.getElementById("waitingSegment").style.width = `${waitingPercent}%`;
+        document.getElementById("waitingSegment").style.width = `${todoPercent}%`;
+        document.getElementById("canceledSegment").style.width = `${canceledPercent}%`;
       }
 
       function setDates() {
@@ -1101,29 +1301,190 @@
         })}`);
       }
 
-      function applyFilter(filter) {
-        document.querySelectorAll(".project-card").forEach((card) => {
-          const shouldShow = filter === "all" || card.dataset.status === filter;
-          card.classList.toggle("is-hidden", !shouldShow);
-        });
-
+      function applyFilter(filter = state.selectedStatus) {
+        state.selectedStatus = filter;
+        renderActivities();
         document.querySelectorAll(".filter-btn").forEach((button) => {
           const isActive = button.dataset.filter === filter;
           button.classList.toggle("active", isActive);
           button.setAttribute("aria-pressed", String(isActive));
         });
 
-        document.querySelector(".section-title").innerHTML = `<i class="fas fa-list-check"></i> Projetos da semana · ${statusLabels[filter]}`;
+        document.querySelector(".section-title").innerHTML = `<i class="fas fa-list-check"></i> Projetos da semana · ${statusConfig[filter].label}`;
+      }
+
+      function weekValue(week) {
+        return `${week.start.toISOString().slice(0, 10)}|${week.end.toISOString().slice(0, 10)}`;
+      }
+
+      function parseWeekValue(value) {
+        const [start, end] = String(value || "").split("|").map(toDate);
+        if (!start || !end) return null;
+        return { start, end };
+      }
+
+      function getMonthKey(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      }
+
+      function getMonthLabel(monthKey) {
+        const [year, month] = monthKey.split("-").map(Number);
+        return new Date(year, month - 1, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+      }
+
+      function getActivityDate(activity) {
+        return activity.plannedStart || activity.realStart || activity.plannedEnd || activity.realEnd || new Date();
+      }
+
+      function overlapsWeek(activity, week) {
+        const start = activity.plannedStart || activity.realStart || activity.plannedEnd || activity.realEnd;
+        const end = activity.plannedEnd || activity.realEnd || start;
+        if (!start || !end) return false;
+        return start <= week.end && end >= week.start;
+      }
+
+      function buildWeekOptions(monthKey) {
+        const [year, month] = monthKey.split("-").map(Number);
+        const first = new Date(year, month - 1, 1);
+        const last = new Date(year, month, 0);
+        const options = [];
+        let cursor = getBusinessWeek(first).start;
+        if (cursor < first && cursor.getMonth() !== first.getMonth()) cursor.setDate(cursor.getDate() + 7);
+        while (cursor <= last) {
+          const week = getBusinessWeek(cursor);
+          options.push(week);
+          cursor = new Date(week.start);
+          cursor.setDate(cursor.getDate() + 7);
+        }
+        return options;
+      }
+
+      function populatePeriodControls() {
+        const monthSelect = document.getElementById("monthSelect");
+        const weekSelect = document.getElementById("weekSelect");
+        const monthKeys = [...new Set(state.allActivities.map((activity) => getMonthKey(getActivityDate(activity))))].sort();
+        const currentMonth = getMonthKey(new Date());
+        state.selectedMonth = monthKeys.includes(currentMonth) ? currentMonth : monthKeys[0];
+
+        monthSelect.innerHTML = monthKeys.map((month) => `<option value="${month}">${getMonthLabel(month)}</option>`).join("");
+        monthSelect.value = state.selectedMonth;
+
+        monthSelect.addEventListener("change", () => {
+          state.selectedMonth = monthSelect.value;
+          populateWeeks();
+          refreshView();
+        });
+
+        weekSelect.addEventListener("change", () => {
+          state.selectedWeek = weekSelect.value;
+          refreshView();
+        });
+
+        populateWeeks();
+      }
+
+      function populateWeeks() {
+        const weekSelect = document.getElementById("weekSelect");
+        const weeks = buildWeekOptions(state.selectedMonth);
+        const currentWeekValue = weekValue(getBusinessWeek(new Date()));
+        weekSelect.innerHTML = weeks.map((week, index) => {
+          const label = `Semana ${index + 1}: ${formatShortDate(week.start)} - ${formatShortDate(week.end)}`;
+          return `<option value="${weekValue(week)}">${label}</option>`;
+        }).join("");
+        state.selectedWeek = weeks.some((week) => weekValue(week) === currentWeekValue) ? currentWeekValue : weekSelect.options[0]?.value || "";
+        weekSelect.value = state.selectedWeek;
+      }
+
+      function refreshView() {
+        const week = parseWeekValue(state.selectedWeek);
+        state.filteredActivities = week ? state.allActivities.filter((activity) => overlapsWeek(activity, week)) : state.allActivities;
+        renderActivities();
+        updateDashboard();
+        setDates();
+      }
+
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        }[char]));
+      }
+
+      function renderActivities() {
+        const grid = document.getElementById("projectsGrid");
+        const activities = state.filteredActivities.filter((activity) => state.selectedStatus === "all" || activity.status === state.selectedStatus);
+        if (!activities.length) {
+          grid.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-days"></i> Nenhuma atividade encontrada para este filtro e período.</div>`;
+          return;
+        }
+
+        grid.innerHTML = activities.map((activity) => {
+          const status = statusConfig[activity.status] || statusConfig.todo;
+          const delayClass = activity.delayDays > 0 ? "delay-chip is-late" : "delay-chip";
+          const delayLabel = activity.delayDays > 0 ? `${activity.delayDays} dia(s) de atraso` : "Sem atraso";
+          return `
+            <article class="project-card" data-status="${activity.status}">
+              <div class="card-top">
+                <div class="card-header">
+                  <div class="project-icon"><i class="fas fa-truck"></i></div>
+                  <span class="status-badge ${status.badge}"><i class="${status.icon}"></i> ${status.label}</span>
+                </div>
+                <h2 class="project-title">${escapeHtml(activity.activity)}</h2>
+              </div>
+              <div class="date-grid">
+                <div class="date-pill"><span>Planejado</span><strong>${formatDate(activity.plannedStart)} - ${formatDate(activity.plannedEnd)}</strong></div>
+                <div class="date-pill"><span>Real</span><strong>${formatDate(activity.realStart)} - ${formatDate(activity.realEnd)}</strong></div>
+              </div>
+              <ul class="task-list">
+                <li><i class="fas fa-note-sticky"></i><span>${escapeHtml(activity.notes || "Sem observações registradas.")}</span></li>
+              </ul>
+              <div class="card-footer"><span class="${delayClass}"><i class="fas fa-clock"></i> ${delayLabel}</span><span>${status.label}</span></div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      async function loadActivities() {
+        try {
+          if (!window.XLSX) throw new Error("Biblioteca XLSX não carregou.");
+          const response = await fetch(DATA_FILE, { cache: "no-store" });
+          if (!response.ok) throw new Error("Planilha não encontrada.");
+          const buffer = await response.arrayBuffer();
+          const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+          state.allActivities = rows.map(normalizeRow).filter((activity) => activity.activity);
+        } catch (error) {
+          console.warn("Usando dados internos de exemplo:", error);
+          state.allActivities = fallbackActivities.map((row) => normalizeRow({
+            Atividade: row[0],
+            "Início Planejado": row[1],
+            "Fim Planejado": row[2],
+            "Início Real": row[3],
+            "Fim Real": row[4],
+            Status: row[5],
+            "Dias de Atraso": row[6],
+            Observações: row[7]
+          }));
+        }
+
+        populatePeriodControls();
+        refreshView();
       }
 
       function setupIntro() {
         const intro = document.getElementById("deliveryIntro");
         const skipButton = document.getElementById("skipIntro");
         const hornButton = document.getElementById("hornButton");
-        let hornPlayed = false;
+        let lastHornAt = 0;
 
         function playHorn() {
-          if (hornPlayed) return;
+          const now = Date.now();
+          if (now - lastHornAt < 220) return;
+          lastHornAt = now;
 
           const AudioContext = window.AudioContext || window.webkitAudioContext;
           if (!AudioContext) return;
@@ -1131,21 +1492,28 @@
           const audioContext = new AudioContext();
 
           function startHorn() {
-            hornPlayed = true;
             const gain = audioContext.createGain();
             gain.connect(audioContext.destination);
             gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.16, audioContext.currentTime + 0.03);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 1.05);
+            gain.gain.exponentialRampToValueAtTime(0.13, audioContext.currentTime + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 1.12);
 
-            [0, 0.24].forEach((delay) => {
-              const oscillator = audioContext.createOscillator();
-              oscillator.type = "square";
-              oscillator.frequency.setValueAtTime(470, audioContext.currentTime + delay);
-              oscillator.frequency.exponentialRampToValueAtTime(320, audioContext.currentTime + delay + 0.2);
-              oscillator.connect(gain);
-              oscillator.start(audioContext.currentTime + delay);
-              oscillator.stop(audioContext.currentTime + delay + 0.2);
+            [
+              { start: 0, duration: 0.34, base: 220 },
+              { start: 0.42, duration: 0.42, base: 196 }
+            ].forEach((note) => {
+              [1, 1.5].forEach((multiple, index) => {
+                const oscillator = audioContext.createOscillator();
+                const noteGain = audioContext.createGain();
+                oscillator.type = index === 0 ? "sawtooth" : "triangle";
+                oscillator.frequency.setValueAtTime(note.base * multiple, audioContext.currentTime + note.start);
+                oscillator.frequency.linearRampToValueAtTime((note.base - 18) * multiple, audioContext.currentTime + note.start + note.duration);
+                noteGain.gain.setValueAtTime(index === 0 ? 0.75 : 0.24, audioContext.currentTime + note.start);
+                oscillator.connect(noteGain);
+                noteGain.connect(gain);
+                oscillator.start(audioContext.currentTime + note.start);
+                oscillator.stop(audioContext.currentTime + note.start + note.duration);
+              });
             });
 
             window.setTimeout(() => audioContext.close(), 1400);
@@ -1153,7 +1521,7 @@
 
           if (audioContext.state === "suspended") {
             audioContext.resume().then(startHorn).catch(() => {
-              hornPlayed = false;
+              lastHornAt = 0;
             });
             return;
           }
@@ -1188,8 +1556,7 @@
 
       setupIntro();
       setDates();
-      updateDashboard();
-      applyFilter("all");
+      loadActivities();
     })();
   </script>
 </body>
