@@ -646,7 +646,15 @@
       background: #38bdf8;
     }
 
-    .skip-intro {
+    .intro-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .skip-intro,
+    .horn-button {
       justify-self: center;
       min-height: 36px;
       border: 1px solid rgba(255, 255, 255, 0.22);
@@ -660,9 +668,21 @@
       transition: background 0.18s ease, border-color 0.18s ease;
     }
 
-    .skip-intro:hover {
+    .horn-button {
+      background: #f59e0b;
+      border-color: #fbbf24;
+      color: #111827;
+    }
+
+    .skip-intro:hover,
+    .horn-button:hover {
       background: rgba(255, 255, 255, 0.14);
       border-color: rgba(255, 255, 255, 0.34);
+    }
+
+    .horn-button:hover {
+      background: #fbbf24;
+      border-color: #fde68a;
     }
 
     body.intro-lock {
@@ -789,7 +809,10 @@
           <span class="wheel wheel-two"></span>
         </div>
       </div>
-      <button class="skip-intro" id="skipIntro" type="button">Pular intro</button>
+      <div class="intro-actions">
+        <button class="horn-button" id="hornButton" type="button"><i class="fas fa-volume-up"></i> Buzinar</button>
+        <button class="skip-intro" id="skipIntro" type="button">Pular intro</button>
+      </div>
     </div>
   </div>
   <main class="page">
@@ -1096,6 +1119,7 @@
       function setupIntro() {
         const intro = document.getElementById("deliveryIntro");
         const skipButton = document.getElementById("skipIntro");
+        const hornButton = document.getElementById("hornButton");
         let hornPlayed = false;
 
         function playHorn() {
@@ -1111,18 +1135,20 @@
             const gain = audioContext.createGain();
             gain.connect(audioContext.destination);
             gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.08, audioContext.currentTime + 0.03);
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.72);
+            gain.gain.exponentialRampToValueAtTime(0.16, audioContext.currentTime + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 1.05);
 
-            [0, 0.17].forEach((delay) => {
+            [0, 0.24].forEach((delay) => {
               const oscillator = audioContext.createOscillator();
               oscillator.type = "square";
-              oscillator.frequency.setValueAtTime(420, audioContext.currentTime + delay);
-              oscillator.frequency.exponentialRampToValueAtTime(340, audioContext.currentTime + delay + 0.14);
+              oscillator.frequency.setValueAtTime(470, audioContext.currentTime + delay);
+              oscillator.frequency.exponentialRampToValueAtTime(320, audioContext.currentTime + delay + 0.2);
               oscillator.connect(gain);
               oscillator.start(audioContext.currentTime + delay);
-              oscillator.stop(audioContext.currentTime + delay + 0.14);
+              oscillator.stop(audioContext.currentTime + delay + 0.2);
             });
+
+            window.setTimeout(() => audioContext.close(), 1400);
           }
 
           if (audioContext.state === "suspended") {
@@ -1148,7 +1174,11 @@
         window.setTimeout(playHorn, 850);
         window.addEventListener("pointerdown", playHorn, { once: true });
         window.addEventListener("keydown", playHorn, { once: true });
-        skipButton.addEventListener("click", closeIntro);
+        hornButton.addEventListener("click", playHorn);
+        skipButton.addEventListener("click", () => {
+          playHorn();
+          closeIntro();
+        });
         window.setTimeout(closeIntro, 6400);
       }
 
