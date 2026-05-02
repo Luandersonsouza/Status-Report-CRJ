@@ -898,6 +898,7 @@
 </head>
 <body class="intro-lock">
   <div class="delivery-intro" id="deliveryIntro" role="status" aria-live="polite">
+    <audio id="hornAudio" src="https://www.myinstants.com/media/sounds/buzina_de_bicicleta_efeito_sonoro_toquesengracadosmp3.mp3" preload="auto"></audio>
     <div class="delivery-scene">
       <div class="delivery-copy">
         <span><i class="fas fa-truck"></i> intro semanal</span>
@@ -1479,13 +1480,10 @@
         const intro = document.getElementById("deliveryIntro");
         const skipButton = document.getElementById("skipIntro");
         const hornButton = document.getElementById("hornButton");
+        const hornAudio = document.getElementById("hornAudio");
         let lastHornAt = 0;
 
-        function playHorn() {
-          const now = Date.now();
-          if (now - lastHornAt < 220) return;
-          lastHornAt = now;
-
+        function playSyntheticHorn() {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
           if (!AudioContext) return;
 
@@ -1527,6 +1525,24 @@
           }
 
           startHorn();
+        }
+
+        async function playHorn() {
+          const now = Date.now();
+          if (now - lastHornAt < 220) return;
+          lastHornAt = now;
+
+          if (hornAudio) {
+            try {
+              hornAudio.currentTime = 0;
+              await hornAudio.play();
+              return;
+            } catch (error) {
+              console.warn("Áudio remoto bloqueado ou indisponível, usando fallback sintético.", error);
+            }
+          }
+
+          playSyntheticHorn();
         }
 
         function closeIntro() {
