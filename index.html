@@ -240,6 +240,42 @@
       border-radius: 50%;
     }
 
+    .history-panel {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 0 0 24px;
+    }
+
+    .history-card {
+      display: grid;
+      gap: 6px;
+      padding: 14px 16px;
+      border: 1px solid rgba(217, 225, 236, 0.9);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 8px 24px rgba(31, 41, 55, 0.06);
+    }
+
+    .history-card span {
+      color: #667085;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .history-card strong {
+      color: #101828;
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+
+    .history-card small {
+      color: #667085;
+      font-size: 0.82rem;
+    }
+
     .stats-row {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -508,6 +544,34 @@
       margin-top: 3px;
       color: #1d2939;
       font-size: 0.85rem;
+    }
+
+    .gain-panel {
+      display: grid;
+      gap: 8px;
+      margin: 0 18px 16px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #f8fafc;
+    }
+
+    .gain-panel span {
+      color: #667085;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .gain-panel strong {
+      color: var(--brand-strong);
+      font-size: 0.95rem;
+    }
+
+    .gain-panel p {
+      color: #475467;
+      font-size: 0.86rem;
     }
 
     .delay-chip {
@@ -972,6 +1036,24 @@
       </div>
     </section>
 
+    <section class="history-panel" aria-label="Controle histórico">
+      <div class="history-card">
+        <span>Base histórica</span>
+        <strong id="historyTotal">-</strong>
+        <small id="historyRange">Demandas carregadas da planilha</small>
+      </div>
+      <div class="history-card">
+        <span>Períodos com demanda</span>
+        <strong id="historyWeeks">-</strong>
+        <small>Semanas disponíveis no filtro</small>
+      </div>
+      <div class="history-card">
+        <span>Ganho médio estimado</span>
+        <strong id="historyGain">-</strong>
+        <small>Calculado pelas linhas da planilha</small>
+      </div>
+    </section>
+
     <section class="stats-row" id="statsPanel" aria-label="Indicadores">
       <div class="stat-card">
         <div class="stat-title"><i class="fas fa-folder-open"></i> Total projetos</div>
@@ -1001,6 +1083,11 @@
         <span class="data-source-note"><i class="fas fa-file-excel"></i> dados-status.xlsx</span>
         <select class="select-field" id="monthSelect" aria-label="Selecionar mês"></select>
         <select class="select-field" id="weekSelect" aria-label="Selecionar semana"></select>
+        <select class="select-field" id="viewSelect" aria-label="Selecionar visão">
+          <option value="week">Semana selecionada</option>
+          <option value="month">Mês inteiro</option>
+          <option value="all">Todo histórico</option>
+        </select>
         <div class="filters" aria-label="Filtrar projetos por status">
           <button class="filter-btn active" type="button" data-filter="all">Todos</button>
           <button class="filter-btn" type="button" data-filter="todo">A fazer</button>
@@ -1012,137 +1099,7 @@
     </div>
 
     <section class="projects-grid" id="projectsGrid" aria-live="polite">
-      <article class="project-card" data-status="progress">
-        <div class="card-top">
-          <div class="card-header">
-            <div class="project-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-            <span class="status-badge badge-progress"><i class="fas fa-spinner fa-pulse"></i> Em andamento</span>
-          </div>
-          <h2 class="project-title">Prorrogação de títulos de revenda FOB (e DDF)</h2>
-        </div>
-        <ul class="task-list">
-          <li><i class="fas fa-circle"></i><span>Análise de aderência da solicitação</span></li>
-          <li><i class="fas fa-circle"></i><span>Levantamento do processo atual (AS IS)</span></li>
-          <li><i class="fas fa-circle"></i><span>Mapeamento de falhas e inconsistências</span></li>
-        </ul>
-        <div class="card-footer"><span>Prioridade ativa</span><span>Processo</span></div>
-      </article>
-
-      <article class="project-card" data-status="progress">
-        <div class="card-top">
-          <div class="card-header">
-            <div class="project-icon"><i class="fas fa-money-bill-wave"></i></div>
-            <span class="status-badge badge-progress"><i class="fas fa-play"></i> Em andamento</span>
-          </div>
-          <h2 class="project-title">Autorização para pagamento de título (adiantamento)</h2>
-        </div>
-        <div class="empty-tasks"><i class="fas fa-ellipsis-h"></i><span>Em análise operacional · próximos passos em breve</span></div>
-        <div class="card-footer"><span>Em análise</span><span>Operação</span></div>
-      </article>
-
-      <article class="project-card" data-status="done">
-        <div class="card-top">
-          <div class="card-header">
-            <div class="project-icon"><i class="fas fa-chart-pie"></i></div>
-            <span class="status-badge badge-done"><i class="fas fa-check"></i> Concluído</span>
-          </div>
-          <h2 class="project-title">Painel Analítico - Produto importado</h2>
-        </div>
-        <ul class="task-list">
-          <li><i class="fas fa-check-circle"></i><span>MCO padrão escritório</span></li>
-          <li><i class="fas fa-check-circle"></i><span>MCO liberado para CQ</span></li>
-        </ul>
-        <div class="card-footer"><span>Entregue</span><span>MCO</span></div>
-      </article>
-
-      <article class="project-card" data-status="done">
-        <div class="card-top">
-          <div class="card-header">
-            <div class="project-icon"><i class="fas fa-video"></i></div>
-            <span class="status-badge badge-done"><i class="fas fa-check-double"></i> Concluído</span>
-          </div>
-          <h2 class="project-title">Ajuste Vídeo Separação</h2>
-        </div>
-        <ul class="task-list">
-          <li><i class="fas fa-check-circle"></i><span>Correção dos pontos informados</span></li>
-          <li><i class="fas fa-check-circle"></i><span>Vídeo reenviado para CQ</span></li>
-        </ul>
-        <div class="card-footer"><span>Entregue</span><span>Conteúdo</span></div>
-      </article>
-
-      <article class="project-card" data-status="progress">
-        <div class="card-top">
-          <div class="card-header">
-            <div class="project-icon"><i class="fas fa-clipboard-list"></i></div>
-            <span class="status-badge badge-progress"><i class="fas fa-chart-line"></i> Em andamento</span>
-          </div>
-          <h2 class="project-title">Política de avaria - Recebimento (CD e Loja)</h2>
-        </div>
-        <ul class="task-list">
-          <li><i class="fas fa-circle"></i><span>Análise de cobertura MCO vs Política</span></li>
-          <li><i class="fas fa-circle"></i><span>Identificação de lacunas</span></li>
-        </ul>
-        <div class="card-footer"><span>Mapeamento</span><span>Política</span></div>
-      </article>
-
-      <article class="project-card" data-status="progress">
-        <div class="card-top">
-          <div class="card-header">
-            <div class="project-icon"><i class="fas fa-ship"></i></div>
-            <span class="status-badge badge-progress"><i class="fas fa-code-branch"></i> Em andamento</span>
-          </div>
-          <h2 class="project-title">Fluxo FOB Sanni</h2>
-        </div>
-        <ul class="task-list">
-          <li><i class="fas fa-circle"></i><span>Confecção do MCO</span></li>
-          <li><i class="fas fa-circle"></i><span>MCO disponibilizado para CQ</span></li>
-          <li><i class="fas fa-circle"></i><span>Ajustes no MCO</span></li>
-        </ul>
-        <div class="card-footer"><span>Ajustes</span><span>MCO</span></div>
-      </article>
-
-      <article class="project-card" data-status="waiting">
-        <div class="card-top">
-          <div class="card-header">
-            <div class="project-icon"><i class="fas fa-building"></i></div>
-            <span class="status-badge badge-waiting"><i class="fas fa-hourglass-half"></i> Aguardando</span>
-          </div>
-          <h2 class="project-title">Regra regime atacadista</h2>
-        </div>
-        <ul class="task-list">
-          <li><i class="fas fa-clock"></i><span>Aguardando ETP para início do MCO</span></li>
-        </ul>
-        <div class="card-footer"><span>Dependência externa</span><span>ETP</span></div>
-      </article>
-
-      <article class="project-card" data-status="progress">
-        <div class="card-top">
-          <div class="card-header">
-            <div class="project-icon"><i class="fas fa-truck"></i></div>
-            <span class="status-badge badge-progress"><i class="fas fa-exchange-alt"></i> Em andamento</span>
-          </div>
-          <h2 class="project-title">Monitor de entrega</h2>
-        </div>
-        <ul class="task-list">
-          <li><i class="fas fa-circle"></i><span>Contato com solicitante para entendimento</span></li>
-        </ul>
-        <div class="card-footer"><span>Entendimento</span><span>Solicitante</span></div>
-      </article>
-
-      <article class="project-card" data-status="done">
-        <div class="card-top">
-          <div class="card-header">
-            <div class="project-icon"><i class="fas fa-mobile-alt"></i></div>
-            <span class="status-badge badge-done"><i class="fas fa-rocket"></i> Concluído</span>
-          </div>
-          <h2 class="project-title">App separação</h2>
-        </div>
-        <ul class="task-list">
-          <li><i class="fas fa-check-circle"></i><span>Demanda já em produção</span></li>
-          <li><i class="fas fa-check-circle"></i><span>Chamado finalizado</span></li>
-        </ul>
-        <div class="card-footer"><span>Produção</span><span>Chamado finalizado</span></div>
-      </article>
+      <div class="empty-state"><i class="fas fa-file-excel"></i> Carregando atividades da planilha...</div>
     </section>
 
     <footer class="footer-note">
@@ -1160,6 +1117,7 @@
         filteredActivities: [],
         selectedMonth: "",
         selectedWeek: "",
+        selectedView: "week",
         selectedStatus: "all"
       };
 
@@ -1172,15 +1130,16 @@
       };
 
       const fallbackActivities = [
-        ["Prorrogação de títulos de revenda FOB (e DDF)", "2026-04-27", "2026-05-01", "2026-04-27", "", "Em andamento", 0, "Análise de aderência, AS IS e mapeamento de falhas."],
-        ["Autorização para pagamento de título (adiantamento)", "2026-04-27", "2026-05-01", "2026-04-28", "", "Em andamento", 0, "Em análise operacional."],
-        ["Painel Analítico - Produto importado", "2026-04-27", "2026-04-30", "2026-04-27", "2026-04-30", "Finalizada", 0, "MCO padrão escritório e liberado para CQ."],
-        ["Ajuste Vídeo Separação", "2026-04-28", "2026-04-30", "2026-04-28", "2026-04-30", "Finalizada", 0, "Correções realizadas e vídeo reenviado para CQ."],
-        ["Política de avaria - Recebimento (CD e Loja)", "2026-04-27", "2026-05-01", "2026-04-29", "", "Em andamento", 0, "Análise de cobertura MCO vs Política e identificação de lacunas."],
-        ["Fluxo FOB Sanni", "2026-04-27", "2026-05-01", "2026-04-27", "", "Em andamento", 0, "Confecção, envio para CQ e ajustes no MCO."],
-        ["Regra regime atacadista", "2026-04-27", "2026-05-01", "", "", "A fazer", 2, "Aguardando ETP para início do MCO."],
-        ["Monitor de entrega", "2026-04-29", "2026-05-02", "2026-04-29", "", "Em andamento", 0, "Contato com solicitante para entendimento."],
-        ["App separação", "2026-04-27", "2026-04-29", "2026-04-27", "2026-04-29", "Finalizada", 0, "Demanda em produção e chamado finalizado."]
+        ["Prorrogação de títulos de revenda FOB e DDF", "2026-05-04", "2026-05-08", "2026-05-07", "", "Em andamento", 0, "EFP finalizada e enviada ao solicitante em 07/05/2026 para validação de aderência. Aguardando de acordo; recobrar em 11/05/2026 no primeiro horário.", "Eficiência operacional", "Padronização da prorrogação e redução de retrabalho entre solicitante e financeiro.", 0.3],
+        ["Autorização para pagamento de título (adiantamento)", "2026-05-04", "2026-05-07", "2026-05-07", "2026-05-07", "Finalizada", 0, "Demanda inclusa na prorrogação de títulos FOB e DDF. Concluída com sucesso em 07/05/2026; autorização feita pelo financeiro após ajuste da data do título pós cobrança do fornecedor.", "Gestão e controle", "Maior controle do fluxo de autorização e da data do título pelo setor financeiro.", 0.25],
+        ["Fluxo FOB Sanni", "2026-05-04", "2026-05-09", "2026-05-04", "2026-05-09", "Finalizada", 0, "Concluída. Pendente criação de card no ClickUp para notificar Talita sobre a realização do CQ.", "Eficiência operacional", "Fluxo formalizado para reduzir dúvidas operacionais e acelerar o controle de qualidade.", 0.2],
+        ["Política de avaria - recebimento (CD e Loja)", "2026-04-27", "2026-04-29", "2026-04-29", "2026-04-29", "Finalizada", 0, "Concluída com sucesso em 29/04/2026.", "Conformidade", "Reforço da aderência à política de avarias no recebimento do CD e das lojas.", 0.35],
+        ["Regra regime atacadista", "2026-05-11", "2026-05-15", "2026-05-11", "", "Em andamento", 0, "MCO completo. Pendente envio da ETP pelo time de sistemas, explicando o funcionamento da regra atacadista de Fortaleza. Previsão de envio: 13/05/2026.", "Conformidade", "Aplicação correta da regra atacadista e redução de risco operacional/fiscal.", 0.3],
+        ["Monitor de Entrega", "2026-05-11", "2026-05-15", "", "", "A fazer", 0, "Documentações ainda não iniciadas. Análise de aderência havia sido iniciada e pausada para foco em demandas já concluídas. Demanda reclassificada como a fazer.", "Gestão e controle", "Visibilidade do acompanhamento de entregas, gargalos e pendências operacionais.", 0.4],
+        ["App separação", "2026-04-27", "2026-04-29", "2026-04-27", "2026-04-29", "Finalizada", 0, "Concluído.", "Eficiência operacional", "Apoio à rotina de separação e redução de esforço manual no processo.", 0.3],
+        ["Painel analítico - produto importado", "2026-04-27", "2026-04-30", "2026-04-27", "2026-04-30", "Finalizada", 0, "Concluído.", "Gestão e controle", "Melhor leitura gerencial dos produtos importados e apoio à tomada de decisão.", 0.35],
+        ["Acompanhamento da migração da plataforma Weni - Suri", "2026-05-11", "2026-05-15", "2026-05-11", "", "Em andamento", 0, "Acompanhar a migração da plataforma Weni para Suri durante a semana 11/05 a 15/05.", "Redução de custo", "Transição acompanhada para reduzir impacto operacional e capturar ganhos da nova plataforma.", 0.2],
+        ["Confecção da jornada do financeiro da plataforma Suri", "2026-05-11", "2026-05-15", "2026-05-11", "", "Em andamento", 0, "Confecção da jornada do financeiro na plataforma Suri em andamento. Início planejado e real em 11/05/2026; fim real será atualizado quando a demanda for concluída.", "Eficiência operacional", "Jornada desenhada para orientar o financeiro e reduzir dúvidas na operação da plataforma.", 0.25]
       ];
 
       function getCurrentWeekRange() {
@@ -1192,7 +1151,7 @@
       function getBusinessWeek(date) {
         const base = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         const dayOfWeek = base.getDay();
-        const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const diffToMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 6 ? 2 : 1 - dayOfWeek;
         const monday = new Date(base);
         monday.setDate(base.getDate() + diffToMonday);
         const friday = new Date(monday);
@@ -1210,6 +1169,13 @@
       function formatDate(date) {
         if (!date) return "Sem data";
         return date.toLocaleDateString("pt-BR");
+      }
+
+      function formatPercent(value) {
+        const percent = Number(value || 0);
+        if (!percent) return "Ganho não mensurado";
+        const normalized = percent > 1 ? percent : percent * 100;
+        return `${Math.round(normalized)}% de ganho estimado`;
       }
 
       function toDate(value) {
@@ -1253,7 +1219,10 @@
           realEnd: toDate(row["Fim Real"] || row["Data Real Fim"] || row["Real Fim"]),
           status: toStatus(row.Status || row["Status da demanda"] || row["Status da Demanda"]),
           delayDays: Number(row["Dias de Atraso"] || row["Dias Atraso"] || row.Atraso || 0) || 0,
-          notes: row["Observações"] || row.Observacoes || row["Observação"] || row.Observacao || ""
+          notes: row["Observações"] || row.Observacoes || row["Observação"] || row.Observacao || "",
+          category: row.Categoria || row.Category || "",
+          gain: row.Ganho || row["Descrição do Ganho"] || row["Descricao do Ganho"] || "",
+          gainPercent: Number(row["% Ganho"] || row["Percentual de Ganho"] || row["Ganho %"] || 0) || 0
         };
       }
 
@@ -1269,6 +1238,20 @@
       function setText(id, value) {
         const element = document.getElementById(id);
         if (element) element.innerText = value;
+      }
+
+      function updateHistoryPanel() {
+        const total = state.allActivities.length;
+        const weeks = new Set(state.allActivities.map(weekKey)).size;
+        const datedActivities = state.allActivities.filter((activity) => getActivityDate(activity));
+        const starts = datedActivities.map(getActivityDate).sort((a, b) => a - b);
+        const ends = datedActivities.map(getActivityEndDate).sort((a, b) => a - b);
+        const gains = state.allActivities.map((activity) => Number(activity.gainPercent || 0)).filter(Boolean);
+        const avgGain = gains.length ? Math.round((gains.reduce((sum, value) => sum + (value > 1 ? value / 100 : value), 0) / gains.length) * 100) : 0;
+        setText("historyTotal", total);
+        setText("historyWeeks", weeks);
+        setText("historyGain", avgGain ? `${avgGain}%` : "-");
+        setText("historyRange", starts.length ? `${formatShortDate(starts[0])} - ${formatShortDate(ends[ends.length - 1])}` : "Demandas carregadas da planilha");
       }
 
       function updateDashboard() {
@@ -1311,11 +1294,15 @@
           button.setAttribute("aria-pressed", String(isActive));
         });
 
-        document.querySelector(".section-title").innerHTML = `<i class="fas fa-list-check"></i> Projetos da semana · ${statusConfig[filter].label}`;
+        updateScopeTitle();
       }
 
       function weekValue(week) {
         return `${week.start.toISOString().slice(0, 10)}|${week.end.toISOString().slice(0, 10)}`;
+      }
+
+      function weekKey(activity) {
+        return weekValue(getBusinessWeek(getActivityDate(activity)));
       }
 
       function parseWeekValue(value) {
@@ -1335,6 +1322,10 @@
 
       function getActivityDate(activity) {
         return activity.plannedStart || activity.realStart || activity.plannedEnd || activity.realEnd || new Date();
+      }
+
+      function getActivityEndDate(activity) {
+        return activity.plannedEnd || activity.realEnd || activity.plannedStart || activity.realStart || getActivityDate(activity);
       }
 
       function overlapsWeek(activity, week) {
@@ -1363,6 +1354,7 @@
       function populatePeriodControls() {
         const monthSelect = document.getElementById("monthSelect");
         const weekSelect = document.getElementById("weekSelect");
+        const viewSelect = document.getElementById("viewSelect");
         const monthKeys = [...new Set(state.allActivities.map((activity) => getMonthKey(getActivityDate(activity))))].sort();
         const currentMonth = getMonthKey(new Date());
         state.selectedMonth = monthKeys.includes(currentMonth) ? currentMonth : monthKeys[0];
@@ -1378,6 +1370,13 @@
 
         weekSelect.addEventListener("change", () => {
           state.selectedWeek = weekSelect.value;
+          state.selectedView = "week";
+          viewSelect.value = state.selectedView;
+          refreshView();
+        });
+
+        viewSelect.addEventListener("change", () => {
+          state.selectedView = viewSelect.value;
           refreshView();
         });
 
@@ -1388,19 +1387,52 @@
         const weekSelect = document.getElementById("weekSelect");
         const weeks = buildWeekOptions(state.selectedMonth);
         const currentWeekValue = weekValue(getBusinessWeek(new Date()));
+        const counts = state.allActivities.reduce((result, activity) => {
+          const key = weekKey(activity);
+          result[key] = (result[key] || 0) + 1;
+          return result;
+        }, {});
         weekSelect.innerHTML = weeks.map((week, index) => {
-          const label = `Semana ${index + 1}: ${formatShortDate(week.start)} - ${formatShortDate(week.end)}`;
-          return `<option value="${weekValue(week)}">${label}</option>`;
+          const value = weekValue(week);
+          const count = counts[value] || 0;
+          const label = `Semana ${index + 1}: ${formatShortDate(week.start)} - ${formatShortDate(week.end)} · ${count} demanda(s)`;
+          return `<option value="${value}">${label}</option>`;
         }).join("");
         state.selectedWeek = weeks.some((week) => weekValue(week) === currentWeekValue) ? currentWeekValue : weekSelect.options[0]?.value || "";
         weekSelect.value = state.selectedWeek;
       }
 
+      function isInSelectedMonth(activity) {
+        return getMonthKey(getActivityDate(activity)) === state.selectedMonth;
+      }
+
+      function getCurrentScopeLabel() {
+        if (state.selectedView === "all") return "todo histórico";
+        if (state.selectedView === "month") return getMonthLabel(state.selectedMonth);
+        const week = parseWeekValue(state.selectedWeek);
+        return week ? `${formatShortDate(week.start)} - ${formatShortDate(week.end)}` : "semana selecionada";
+      }
+
+      function updateScopeTitle() {
+        const title = document.querySelector(".section-title");
+        if (!title) return;
+        title.innerHTML = `<i class="fas fa-list-check"></i> Demandas · ${getCurrentScopeLabel()} · ${statusConfig[state.selectedStatus].label}`;
+      }
+
       function refreshView() {
         const week = parseWeekValue(state.selectedWeek);
-        state.filteredActivities = week ? state.allActivities.filter((activity) => overlapsWeek(activity, week)) : state.allActivities;
+        if (state.selectedView === "all") {
+          state.filteredActivities = [...state.allActivities];
+        } else if (state.selectedView === "month") {
+          state.filteredActivities = state.allActivities.filter(isInSelectedMonth);
+        } else {
+          state.filteredActivities = week ? state.allActivities.filter((activity) => overlapsWeek(activity, week)) : state.allActivities;
+        }
+        state.filteredActivities.sort((a, b) => getActivityDate(a) - getActivityDate(b) || String(a.activity).localeCompare(String(b.activity)));
         renderActivities();
+        updateScopeTitle();
         updateDashboard();
+        updateHistoryPanel();
         setDates();
       }
 
@@ -1442,7 +1474,12 @@
               <ul class="task-list">
                 <li><i class="fas fa-note-sticky"></i><span>${escapeHtml(activity.notes || "Sem observações registradas.")}</span></li>
               </ul>
-              <div class="card-footer"><span class="${delayClass}"><i class="fas fa-clock"></i> ${delayLabel}</span><span>${status.label}</span></div>
+              <div class="gain-panel">
+                <span>${escapeHtml(activity.category || "Sem categoria")}</span>
+                <strong>${formatPercent(activity.gainPercent)}</strong>
+                <p>${escapeHtml(activity.gain || "Ganho ainda não descrito.")}</p>
+              </div>
+              <div class="card-footer"><span class="${delayClass}"><i class="fas fa-clock"></i> ${delayLabel}</span><span>${escapeHtml(activity.category || status.label)}</span></div>
             </article>
           `;
         }).join("");
@@ -1468,7 +1505,10 @@
             "Fim Real": row[4],
             Status: row[5],
             "Dias de Atraso": row[6],
-            Observações: row[7]
+            Observações: row[7],
+            Categoria: row[8],
+            Ganho: row[9],
+            "% Ganho": row[10]
           }));
         }
 
@@ -1555,14 +1595,16 @@
           return;
         }
 
+        function handleIntroPointerDown(event) {
+          if (skipButton.contains(event.target)) return;
+          playHorn();
+        }
+
         window.setTimeout(playHorn, 850);
-        window.addEventListener("pointerdown", playHorn, { once: true });
+        window.addEventListener("pointerdown", handleIntroPointerDown, { once: true });
         window.addEventListener("keydown", playHorn, { once: true });
         hornButton.addEventListener("click", playHorn);
-        skipButton.addEventListener("click", () => {
-          playHorn();
-          closeIntro();
-        });
+        skipButton.addEventListener("click", closeIntro);
         window.setTimeout(closeIntro, 6400);
       }
 
